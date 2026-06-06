@@ -22,6 +22,13 @@
       "when": 1780747099371,
       "tag": "0002_slow_deathstrike",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1780749491858,
+      "tag": "0003_married_mauler",
+      "breakpoints": true
     }
   ]
 }

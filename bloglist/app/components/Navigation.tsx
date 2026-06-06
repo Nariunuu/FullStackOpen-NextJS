@@ -23,6 +23,7 @@ export default async function Navigation() {
         <div className="flex items-center gap-1">
           <NavLink href="/">Home</NavLink>
           <NavLink href="/blogs">Blogs</NavLink>
+          {session?.user && <NavLink href="/me">Me</NavLink>}
         </div>
 
         <div className="ml-auto flex items-center gap-3 text-sm">
