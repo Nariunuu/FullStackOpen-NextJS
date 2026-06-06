@@ -10,7 +10,8 @@ export default async function BlogsPage({
   const filterValue = typeof filter === "string" ? filter : "";
   const normalized = filterValue.trim().toLowerCase();
 
-  const blogs = getBlogs()
+  const allBlogs = await getBlogs();
+  const blogs = allBlogs
     .filter((blog) =>
       normalized ? blog.title.toLowerCase().includes(normalized) : true,
     )

@@ -9,7 +9,10 @@ export default async function BlogDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const blog = getBlogById(id);
+  const numericId = Number.parseInt(id, 10);
+  const blog = Number.isInteger(numericId)
+    ? await getBlogById(numericId)
+    : null;
 
   if (!blog) {
     notFound();

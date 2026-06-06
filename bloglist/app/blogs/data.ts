@@ -1,7 +1,9 @@
-import { randomUUID } from "node:crypto";
+import { eq, sql } from "drizzle-orm";
+import { db } from "../db";
+import { blogs as blogsTable } from "../db/schema";
 
 export type Blog = {
-  id: string;
+  id: number;
   title: string;
   author: string;
   url: string;
@@ -14,63 +16,42 @@ export type NewBlogInput = {
   url: string;
 };
 
-let blogs: Blog[] = [
-  {
-    id: "1",
-    title: "React patterns",
-    author: "Michael Chan",
-    url: "https://reactpatterns.com/",
-    likes: 7,
-  },
-  {
-    id: "2",
-    title: "Go To Statement Considered Harmful",
-    author: "Edsger W. Dijkstra",
-    url: "https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf",
-    likes: 5,
-  },
-  {
-    id: "3",
-    title: "Canonical string reduction",
-    author: "Edsger W. Dijkstra",
-    url: "https://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-    likes: 12,
-  },
-  {
-    id: "4",
-    title: "First class tests",
-    author: "Robert C. Martin",
-    url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html",
-    likes: 10,
-  },
-];
-
-export function getBlogs(): readonly Blog[] {
-  return blogs;
+export async function getBlogs(): Promise<Blog[]> {
+  return db.select().from(blogsTable);
 }
 
-export function getBlogById(id: string): Blog | null {
-  return blogs.find((blog) => blog.id === id) ?? null;
-}
-
-export function incrementLikes(id: string): Blog | null {
-  const target = blogs.find((blog) => blog.id === id);
-  if (!target) {
+export async function getBlogById(id: number): Promise<Blog | null> {
+  if (!Number.isInteger(id)) {
     return null;
   }
-  const updated: Blog = { ...target, likes: target.likes + 1 };
-  blogs = blogs.map((blog) => (blog.id === id ? updated : blog));
-  return updated;
+  const rows = await db
+    .select()
+    .from(blogsTable)
+    .where(eq(blogsTable.id, id))
+    .limit(1);
+  return rows[0] ?? null;
 }
 
-export function addBlog(input: NewBlogInput): Blog {
-  const newBlog: Blog = {
-    id: randomUUID(),
-    title: input.title,
-    author: input.author,
-    url: input.url,
-    likes: 0,
-  };
-  blogs = [...blogs, newBlog];
-  return newBlog;
+export async function addBlog(input: NewBlogInput): Promise<Blog> {
+  const [created] = await db
+    .insert(blogsTable)
+    .values({
+      title: input.title,
+      author: input.author,
+      url: input.url,
+    })
+    .returning();
+  return created;
+}
+
+export async function incrementLikes(id: number): Promise<Blog | null> {
+  if (!Number.isInteger(id)) {
+    return null;
+  }
+  const [updated] = await db
+    .update(blogsTable)
+    .set({ likes: sql`${blogsTable.likes} + 1` })
+    .where(eq(blogsTable.id, id))
+    .returning();
+  return updated ?? null;
 }
