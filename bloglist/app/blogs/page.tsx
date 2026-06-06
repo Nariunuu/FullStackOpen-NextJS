@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getBlogs } from "./data";
 
 export default function BlogsPage() {
-  const blogs = getBlogs();
+  const blogs = getBlogs().toSorted((a, b) => b.likes - a.likes);
 
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-16">
