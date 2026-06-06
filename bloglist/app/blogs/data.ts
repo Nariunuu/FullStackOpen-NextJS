@@ -49,6 +49,10 @@ export function getBlogs(): readonly Blog[] {
   return blogs;
 }
 
+export function getBlogById(id: string): Blog | null {
+  return blogs.find((blog) => blog.id === id) ?? null;
+}
+
 export function addBlog(input: NewBlogInput): Blog {
   const newBlog: Blog = {
     id: randomUUID(),
