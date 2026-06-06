@@ -1,48 +1,22 @@
-type Blog = {
-  id: string;
-  title: string;
-  author: string;
-  url: string;
-  likes: number;
-};
-
-const blogs: Blog[] = [
-  {
-    id: "1",
-    title: "React patterns",
-    author: "Michael Chan",
-    url: "https://reactpatterns.com/",
-    likes: 7,
-  },
-  {
-    id: "2",
-    title: "Go To Statement Considered Harmful",
-    author: "Edsger W. Dijkstra",
-    url: "https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf",
-    likes: 5,
-  },
-  {
-    id: "3",
-    title: "Canonical string reduction",
-    author: "Edsger W. Dijkstra",
-    url: "https://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-    likes: 12,
-  },
-  {
-    id: "4",
-    title: "First class tests",
-    author: "Robert C. Martin",
-    url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.html",
-    likes: 10,
-  },
-];
+import Link from "next/link";
+import { getBlogs } from "./data";
 
 export default function BlogsPage() {
+  const blogs = getBlogs();
+
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-        Blogs
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+          Blogs
+        </h1>
+        <Link
+          href="/blogs/new"
+          className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+        >
+          New blog
+        </Link>
+      </div>
       <ul className="flex flex-col gap-4">
         {blogs.map((blog) => (
           <li
