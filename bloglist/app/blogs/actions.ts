@@ -25,12 +25,47 @@ function readId(formData: FormData): number {
   return id;
 }
 
-export async function createBlog(formData: FormData): Promise<void> {
-  const title = readString(formData, "title");
-  const author = readString(formData, "author");
-  const url = readString(formData, "url");
+export type CreateBlogState = {
+  values: { title: string; author: string; url: string };
+  errors: { title?: string; author?: string; url?: string };
+};
 
-  await addBlog({ title, author, url });
+const MIN_LENGTH = 5;
+
+function validateField(value: string, label: string): string | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return `${label} is required`;
+  }
+  if (trimmed.length < MIN_LENGTH) {
+    return `${label} must be at least ${MIN_LENGTH} characters`;
+  }
+  return undefined;
+}
+
+export async function createBlog(
+  _prev: CreateBlogState,
+  formData: FormData,
+): Promise<CreateBlogState> {
+  const title = (formData.get("title") ?? "").toString();
+  const author = (formData.get("author") ?? "").toString();
+  const url = (formData.get("url") ?? "").toString();
+
+  const errors: CreateBlogState["errors"] = {
+    title: validateField(title, "Title"),
+    author: validateField(author, "Author"),
+    url: validateField(url, "URL"),
+  };
+
+  if (errors.title || errors.author || errors.url) {
+    return { values: { title, author, url }, errors };
+  }
+
+  await addBlog({
+    title: title.trim(),
+    author: author.trim(),
+    url: url.trim(),
+  });
 
   revalidatePath("/blogs");
   redirect("/blogs");
