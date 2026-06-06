@@ -4,7 +4,79 @@ import { redirect } from "next/navigation";
 import { auth } from "../auth";
 import { db } from "../db";
 import { users } from "../db/schema";
-import { generateToken } from "./actions";
+import { generateToken, markAsRead } from "./actions";
+
+type ReadingListEntry = {
+  id: number;
+  read: boolean;
+  blog: {
+    id: number;
+    title: string;
+    author: string;
+  };
+};
+
+function ReadingListSection({
+  title,
+  entries,
+  emptyText,
+  showMarkAsRead,
+}: {
+  title: string;
+  entries: ReadingListEntry[];
+  emptyText: string;
+  showMarkAsRead: boolean;
+}) {
+  return (
+    <section>
+      <header className="mb-3 flex items-baseline gap-2">
+        <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+          {title}
+        </h3>
+        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+          ({entries.length})
+        </span>
+      </header>
+
+      {entries.length === 0 ? (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">{emptyText}</p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {entries.map((entry) => (
+            <li
+              key={entry.id}
+              className="flex items-center justify-between gap-4 rounded-md border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm dark:border-zinc-800 dark:bg-zinc-900"
+            >
+              <div className="min-w-0">
+                <Link
+                  href={`/blogs/${entry.blog.id}`}
+                  className="font-medium text-zinc-900 hover:underline dark:text-zinc-50"
+                >
+                  {entry.blog.title}
+                </Link>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  by {entry.blog.author}
+                </p>
+              </div>
+
+              {showMarkAsRead && (
+                <form action={markAsRead}>
+                  <input type="hidden" name="entryId" value={entry.id} />
+                  <button
+                    type="submit"
+                    className="shrink-0 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  >
+                    Mark as read
+                  </button>
+                </form>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
 
 export default async function MePage() {
   const session = await auth();
@@ -26,6 +98,9 @@ export default async function MePage() {
   if (!user) {
     redirect("/login");
   }
+
+  const unread = user.readingList.filter((entry) => !entry.read);
+  const read = user.readingList.filter((entry) => entry.read);
 
   return (
     <section className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-12">
@@ -84,47 +159,31 @@ export default async function MePage() {
         </form>
       </article>
 
-      <article className="rounded-lg border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-          Reading list
-        </h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          {user.readingList.length === 0
-            ? "Your reading list is empty."
-            : `${user.readingList.length} blog${user.readingList.length === 1 ? "" : "s"} on your list.`}
-        </p>
+      <article className="flex flex-col gap-6 rounded-lg border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <header>
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+            Reading list
+          </h2>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            {user.readingList.length === 0
+              ? "Your reading list is empty."
+              : `${user.readingList.length} blog${user.readingList.length === 1 ? "" : "s"} total · ${unread.length} unread, ${read.length} read`}
+          </p>
+        </header>
 
-        {user.readingList.length > 0 && (
-          <ul className="mt-4 flex flex-col gap-2">
-            {user.readingList.map((entry) => (
-              <li
-                key={entry.id}
-                className="flex items-center justify-between gap-4 rounded-md border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                <div className="min-w-0">
-                  <Link
-                    href={`/blogs/${entry.blog.id}`}
-                    className="font-medium text-zinc-900 hover:underline dark:text-zinc-50"
-                  >
-                    {entry.blog.title}
-                  </Link>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    by {entry.blog.author}
-                  </p>
-                </div>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                    entry.read
-                      ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200"
-                      : "bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                  }`}
-                >
-                  {entry.read ? "read" : "unread"}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <ReadingListSection
+          title="Unread"
+          entries={unread}
+          emptyText="Nothing to read right now."
+          showMarkAsRead
+        />
+
+        <ReadingListSection
+          title="Read"
+          entries={read}
+          emptyText="You haven't marked any blogs as read yet."
+          showMarkAsRead={false}
+        />
       </article>
     </section>
   );
