@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { addBlog } from "./data";
+import { addBlog, incrementLikes } from "./data";
 
 function readString(formData: FormData, field: string): string {
   const value = formData.get(field);
@@ -25,4 +25,16 @@ export async function createBlog(formData: FormData): Promise<void> {
 
   revalidatePath("/blogs");
   redirect("/blogs");
+}
+
+export async function likeBlog(formData: FormData): Promise<void> {
+  const id = readString(formData, "id");
+
+  const updated = incrementLikes(id);
+  if (!updated) {
+    throw new Error(`Blog with id "${id}" not found`);
+  }
+
+  revalidatePath("/blogs");
+  revalidatePath(`/blogs/${id}`);
 }

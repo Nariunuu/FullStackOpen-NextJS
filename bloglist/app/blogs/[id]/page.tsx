@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { likeBlog } from "../actions";
 import { getBlogById } from "../data";
 
 export default async function BlogDetailPage({
@@ -49,7 +50,18 @@ export default async function BlogDetailPage({
           <dt className="font-medium text-zinc-500 dark:text-zinc-400">
             Likes
           </dt>
-          <dd className="text-zinc-900 dark:text-zinc-100">{blog.likes}</dd>
+          <dd className="flex items-center gap-3 text-zinc-900 dark:text-zinc-100">
+            <span>{blog.likes}</span>
+            <form action={likeBlog}>
+              <input type="hidden" name="id" value={blog.id} />
+              <button
+                type="submit"
+                className="rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+              >
+                Like
+              </button>
+            </form>
+          </dd>
         </div>
       </dl>
     </section>

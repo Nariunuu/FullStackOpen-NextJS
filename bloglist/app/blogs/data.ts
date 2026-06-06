@@ -53,6 +53,16 @@ export function getBlogById(id: string): Blog | null {
   return blogs.find((blog) => blog.id === id) ?? null;
 }
 
+export function incrementLikes(id: string): Blog | null {
+  const target = blogs.find((blog) => blog.id === id);
+  if (!target) {
+    return null;
+  }
+  const updated: Blog = { ...target, likes: target.likes + 1 };
+  blogs = blogs.map((blog) => (blog.id === id ? updated : blog));
+  return updated;
+}
+
 export function addBlog(input: NewBlogInput): Blog {
   const newBlog: Blog = {
     id: randomUUID(),
