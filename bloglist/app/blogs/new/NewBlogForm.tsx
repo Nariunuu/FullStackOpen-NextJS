@@ -10,6 +10,14 @@ const initialCreateBlogState: CreateBlogState = {
   errors: {},
 };
 
+function inputClasses(hasError: boolean): string {
+  const base =
+    "w-full rounded-md border bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-500";
+  return hasError
+    ? `${base} border-red-400 focus:border-red-500 focus:ring-red-500 dark:border-red-700`
+    : `${base} border-zinc-300 focus:border-zinc-500 focus:ring-zinc-500 dark:border-zinc-700`;
+}
+
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return (
@@ -37,49 +45,62 @@ export default function NewBlogForm() {
   }, [state.success, notify, router]);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4" noValidate>
-      <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
-        Title
+    <form action={formAction} className="flex flex-col gap-5" noValidate>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="title" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          Title
+        </label>
         <input
+          id="title"
           type="text"
           name="title"
+          placeholder="e.g. Why I love Server Components"
           defaultValue={state.values.title}
           aria-invalid={Boolean(state.errors.title)}
-          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
+          aria-describedby={state.errors.title ? "title-error" : undefined}
+          className={inputClasses(Boolean(state.errors.title))}
         />
         <FieldError message={state.errors.title} />
-      </label>
+      </div>
 
-      <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
-        Author
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="author" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          Author
+        </label>
         <input
+          id="author"
           type="text"
           name="author"
+          placeholder="Jane Doe"
           defaultValue={state.values.author}
           aria-invalid={Boolean(state.errors.author)}
-          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
+          className={inputClasses(Boolean(state.errors.author))}
         />
         <FieldError message={state.errors.author} />
-      </label>
+      </div>
 
-      <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
-        URL
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="url" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          URL
+        </label>
         <input
+          id="url"
           type="text"
           name="url"
+          placeholder="https://example.com/post"
           defaultValue={state.values.url}
           aria-invalid={Boolean(state.errors.url)}
-          className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
+          className={inputClasses(Boolean(state.errors.url))}
         />
         <FieldError message={state.errors.url} />
-      </label>
+      </div>
 
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+        className="self-start rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
       >
-        {pending ? "Creating…" : "Create"}
+        {pending ? "Creating…" : "Create blog"}
       </button>
     </form>
   );
