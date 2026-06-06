@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { likeBlog } from "../actions";
-import { getBlogById } from "../data";
+import { auth } from "../../auth";
+import { addToReadingList, likeBlog } from "../actions";
+import { getBlogById, isInReadingList } from "../data";
 
 export default async function BlogDetailPage({
   params,
@@ -17,6 +18,19 @@ export default async function BlogDetailPage({
   if (!blog) {
     notFound();
   }
+
+  const session = await auth();
+  const viewerId = session?.user?.id
+    ? Number.parseInt(session.user.id, 10)
+    : null;
+
+  const viewerIsAuthor =
+    viewerId !== null && blog.userId !== null && blog.userId === viewerId;
+
+  const alreadyOnReadingList =
+    viewerId !== null && !viewerIsAuthor
+      ? await isInReadingList(viewerId, blog.id)
+      : false;
 
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-12">
@@ -53,7 +67,7 @@ export default async function BlogDetailPage({
         </dd>
 
         <dt className="font-medium text-zinc-500 dark:text-zinc-400">Likes</dt>
-        <dd className="flex items-center gap-3">
+        <dd className="flex flex-wrap items-center gap-3">
           <span className="rounded-full bg-zinc-100 px-3 py-1 text-sm font-medium text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100">
             {blog.likes}
           </span>
@@ -61,11 +75,29 @@ export default async function BlogDetailPage({
             <input type="hidden" name="id" value={blog.id} />
             <button
               type="submit"
-              className="inline-flex items-center gap-1 rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+              className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             >
               <span aria-hidden>♥</span> Like
             </button>
           </form>
+
+          {viewerId !== null && !viewerIsAuthor && (
+            alreadyOnReadingList ? (
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
+                On your reading list
+              </span>
+            ) : (
+              <form action={addToReadingList}>
+                <input type="hidden" name="id" value={blog.id} />
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                >
+                  + Add to reading list
+                </button>
+              </form>
+            )
+          )}
         </dd>
       </dl>
     </section>

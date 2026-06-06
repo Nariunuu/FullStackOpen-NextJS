@@ -1,7 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { addBlog, incrementLikes } from "./data";
+import { auth } from "../auth";
+import {
+  addBlog,
+  addBlogToReadingList,
+  incrementLikes,
+} from "./data";
 
 function readString(formData: FormData, field: string): string {
   const value = formData.get(field);
@@ -20,6 +25,18 @@ function readId(formData: FormData): number {
   const id = Number.parseInt(raw, 10);
   if (!Number.isInteger(id)) {
     throw new Error(`Field "id" must be an integer, got "${raw}"`);
+  }
+  return id;
+}
+
+async function currentUserId(): Promise<number> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Not authenticated");
+  }
+  const id = Number.parseInt(session.user.id, 10);
+  if (!Number.isInteger(id)) {
+    throw new Error("Invalid session user id");
   }
   return id;
 }
@@ -47,6 +64,8 @@ export async function createBlog(
   _prev: CreateBlogState,
   formData: FormData,
 ): Promise<CreateBlogState> {
+  const userId = await currentUserId();
+
   const title = (formData.get("title") ?? "").toString();
   const author = (formData.get("author") ?? "").toString();
   const url = (formData.get("url") ?? "").toString();
@@ -66,9 +85,11 @@ export async function createBlog(
     title: trimmedTitle,
     author: author.trim(),
     url: url.trim(),
+    userId,
   });
 
   revalidatePath("/blogs");
+  revalidatePath("/me");
 
   return {
     values: { title: "", author: "", url: "" },
@@ -87,4 +108,14 @@ export async function likeBlog(formData: FormData): Promise<void> {
 
   revalidatePath("/blogs");
   revalidatePath(`/blogs/${id}`);
+}
+
+export async function addToReadingList(formData: FormData): Promise<void> {
+  const userId = await currentUserId();
+  const blogId = readId(formData);
+
+  await addBlogToReadingList(userId, blogId);
+
+  revalidatePath(`/blogs/${blogId}`);
+  revalidatePath("/me");
 }
