@@ -6,43 +6,75 @@ import { redirect } from "next/navigation";
 import { db } from "../db";
 import { users } from "../db/schema";
 
-export type RegisterState = { error?: string };
+export type RegisterState = {
+  values: { username: string; name: string };
+  errors: {
+    username?: string;
+    name?: string;
+    password?: string;
+    passwordConfirm?: string;
+  };
+};
 
 const SALT_ROUNDS = 10;
+const MIN_USERNAME_LENGTH = 4;
+const MIN_PASSWORD_LENGTH = 4;
 
-function readField(formData: FormData, field: string): string {
+function readString(formData: FormData, field: string): string {
   const value = formData.get(field);
-  if (typeof value !== "string") {
-    throw new Error(`Field "${field}" is required`);
-  }
-  return value.trim();
+  return typeof value === "string" ? value : "";
 }
 
 export async function registerUser(
   _prev: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
-  const username = readField(formData, "username");
-  const name = readField(formData, "name");
-  const password = formData.get("password");
+  const username = readString(formData, "username").trim();
+  const name = readString(formData, "name").trim();
+  const password = readString(formData, "password");
+  const passwordConfirm = readString(formData, "passwordConfirm");
 
-  if (!username || !name) {
-    return { error: "Username and name are required" };
-  }
-  if (typeof password !== "string" || password.length < 4) {
-    return { error: "Password must be at least 4 characters" };
+  const errors: RegisterState["errors"] = {};
+
+  if (!username) {
+    errors.username = "Username is required";
+  } else if (username.length < MIN_USERNAME_LENGTH) {
+    errors.username = `Username must be at least ${MIN_USERNAME_LENGTH} characters`;
   }
 
-  const existing = await db.query.users.findFirst({
-    where: eq(users.username, username),
-    columns: { id: true },
-  });
-  if (existing) {
-    return { error: "Username is already taken" };
+  if (!name) {
+    errors.name = "Name is required";
+  }
+
+  if (!password) {
+    errors.password = "Password is required";
+  } else if (password.length < MIN_PASSWORD_LENGTH) {
+    errors.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
+  }
+
+  if (!errors.password) {
+    if (!passwordConfirm) {
+      errors.passwordConfirm = "Please confirm your password";
+    } else if (password !== passwordConfirm) {
+      errors.passwordConfirm = "Passwords do not match";
+    }
+  }
+
+  if (!errors.username) {
+    const existing = await db.query.users.findFirst({
+      where: eq(users.username, username),
+      columns: { id: true },
+    });
+    if (existing) {
+      errors.username = "Username is already taken";
+    }
+  }
+
+  if (Object.values(errors).some(Boolean)) {
+    return { values: { username, name }, errors };
   }
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-
   await db.insert(users).values({ username, name, passwordHash });
 
   redirect("/login");
