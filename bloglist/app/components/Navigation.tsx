@@ -57,10 +57,10 @@ export default async function Navigation() {
                 Sign in
               </Link>
               <Link
-                href="/signup"
+                href="/register"
                 className="rounded-md bg-zinc-900 px-3 py-1 text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
               >
-                Sign up
+                Register
               </Link>
             </>
           )}

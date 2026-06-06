@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { db } from "../db";
 import { users } from "../db/schema";
 
-export type SignupState = { error?: string };
+export type RegisterState = { error?: string };
 
 const SALT_ROUNDS = 10;
 
@@ -18,10 +18,10 @@ function readField(formData: FormData, field: string): string {
   return value.trim();
 }
 
-export async function signup(
-  _prev: SignupState,
+export async function registerUser(
+  _prev: RegisterState,
   formData: FormData,
-): Promise<SignupState> {
+): Promise<RegisterState> {
   const username = readField(formData, "username");
   const name = readField(formData, "name");
   const password = formData.get("password");

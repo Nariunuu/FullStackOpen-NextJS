@@ -78,7 +78,7 @@ export default function LoginPage() {
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           No account?{" "}
           <Link
-            href="/signup"
+            href="/register"
             className="text-blue-600 hover:underline dark:text-blue-400"
           >
             Create one

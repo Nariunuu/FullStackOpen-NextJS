@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { signup, type SignupState } from "./actions";
+import { registerUser, type RegisterState } from "./actions";
 
-const initialState: SignupState = {};
+const initialState: RegisterState = {};
 
-export default function SignupForm() {
-  const [state, formAction, pending] = useActionState(signup, initialState);
+export default function RegisterForm() {
+  const [state, formAction, pending] = useActionState(
+    registerUser,
+    initialState,
+  );
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
