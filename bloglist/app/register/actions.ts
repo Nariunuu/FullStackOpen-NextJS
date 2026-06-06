@@ -2,7 +2,6 @@
 
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { redirect } from "next/navigation";
 import { db } from "../db";
 import { users } from "../db/schema";
 
@@ -14,6 +13,7 @@ export type RegisterState = {
     password?: string;
     passwordConfirm?: string;
   };
+  success?: { username: string };
 };
 
 const SALT_ROUNDS = 10;
@@ -77,5 +77,9 @@ export async function registerUser(
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
   await db.insert(users).values({ username, name, passwordHash });
 
-  redirect("/login");
+  return {
+    values: { username: "", name: "" },
+    errors: {},
+    success: { username },
+  };
 }

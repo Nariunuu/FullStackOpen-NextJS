@@ -1,6 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect } from "react";
+import { useNotification } from "../../context/NotificationContext";
 import { createBlog, type CreateBlogState } from "../actions";
 
 const initialCreateBlogState: CreateBlogState = {
@@ -18,10 +20,21 @@ function FieldError({ message }: { message?: string }) {
 }
 
 export default function NewBlogForm() {
+  const router = useRouter();
+  const { notify } = useNotification();
+
   const [state, formAction, pending] = useActionState<
     CreateBlogState,
     FormData
   >(createBlog, initialCreateBlogState);
+
+  useEffect(() => {
+    if (state.success) {
+      notify(`Blog "${state.success.title}" created`, "success");
+      router.push("/blogs");
+      router.refresh();
+    }
+  }, [state.success, notify, router]);
 
   return (
     <form action={formAction} className="flex flex-col gap-4" noValidate>

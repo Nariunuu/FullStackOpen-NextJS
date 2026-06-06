@@ -4,9 +4,11 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { useNotification } from "../context/NotificationContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { notify } = useNotification();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -16,8 +18,9 @@ export default function LoginPage() {
     setPending(true);
 
     const formData = new FormData(event.currentTarget);
+    const username = String(formData.get("username") ?? "");
     const result = await signIn("credentials", {
-      username: formData.get("username"),
+      username,
       password: formData.get("password"),
       redirect: false,
     });
@@ -26,9 +29,11 @@ export default function LoginPage() {
 
     if (result?.error) {
       setError("Invalid username or password");
+      notify("Invalid username or password", "error");
       return;
     }
 
+    notify(`Welcome back, ${username}`, "success");
     router.push("/blogs");
     router.refresh();
   };

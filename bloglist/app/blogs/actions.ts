@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { addBlog, incrementLikes } from "./data";
 
 function readString(formData: FormData, field: string): string {
@@ -28,6 +27,7 @@ function readId(formData: FormData): number {
 export type CreateBlogState = {
   values: { title: string; author: string; url: string };
   errors: { title?: string; author?: string; url?: string };
+  success?: { title: string };
 };
 
 const MIN_LENGTH = 5;
@@ -61,14 +61,20 @@ export async function createBlog(
     return { values: { title, author, url }, errors };
   }
 
+  const trimmedTitle = title.trim();
   await addBlog({
-    title: title.trim(),
+    title: trimmedTitle,
     author: author.trim(),
     url: url.trim(),
   });
 
   revalidatePath("/blogs");
-  redirect("/blogs");
+
+  return {
+    values: { title: "", author: "", url: "" },
+    errors: {},
+    success: { title: trimmedTitle },
+  };
 }
 
 export async function likeBlog(formData: FormData): Promise<void> {

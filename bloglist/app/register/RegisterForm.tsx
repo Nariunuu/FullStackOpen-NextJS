@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect } from "react";
+import { useNotification } from "../context/NotificationContext";
 import { registerUser, type RegisterState } from "./actions";
 
 const initialState: RegisterState = {
@@ -19,10 +21,23 @@ function FieldError({ message }: { message?: string }) {
 }
 
 export default function RegisterForm() {
+  const router = useRouter();
+  const { notify } = useNotification();
+
   const [state, formAction, pending] = useActionState<RegisterState, FormData>(
     registerUser,
     initialState,
   );
+
+  useEffect(() => {
+    if (state.success) {
+      notify(
+        `Account "${state.success.username}" created — please sign in`,
+        "success",
+      );
+      router.push("/login");
+    }
+  }, [state.success, notify, router]);
 
   return (
     <form action={formAction} className="flex flex-col gap-4" noValidate>
