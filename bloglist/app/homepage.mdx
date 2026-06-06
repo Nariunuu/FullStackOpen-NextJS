@@ -1,0 +1,23 @@
+# Bloglist
+
+A small Next.js app for tracking blogs you've read — and want to read.
+
+## What you can do
+
+- **Browse blogs** sorted by popularity at [/blogs](/blogs).
+- **Add your own blog** at [/blogs/new](/blogs/new). It joins your reading list automatically.
+- **Like** any blog you enjoyed; the count is shared across all users.
+- **Add to reading list** — any blog you didn't add yourself can be saved for later.
+- **Mark blogs as read** on your profile at [/me](/me).
+
+## API access
+
+Generate a personal token on [/me](/me) and call the API with it:
+
+```
+curl -H "Authorization: Bearer <your-token>" http://localhost:3000/api/me
+```
+
+---
+
+Built with Next.js 16 (App Router), Drizzle ORM on Neon Postgres, NextAuth.js for authentication, and Tailwind CSS for styling.
