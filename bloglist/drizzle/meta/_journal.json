@@ -15,6 +15,13 @@
       "when": 1780746659439,
       "tag": "0001_watery_obadiah_stane",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780747099371,
+      "tag": "0002_slow_deathstrike",
+      "breakpoints": true
     }
   ]
 }
