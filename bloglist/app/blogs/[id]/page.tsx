@@ -33,7 +33,10 @@ export default async function BlogDetailPage({
       : false;
 
   return (
-    <section className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-12">
+    <section
+      data-testid="blog-detail"
+      className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-12"
+    >
       <Link
         href="/blogs"
         className="inline-flex items-center gap-1 text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
@@ -42,10 +45,16 @@ export default async function BlogDetailPage({
       </Link>
 
       <header className="border-b border-zinc-200 pb-6 dark:border-zinc-800">
-        <h1 className="text-3xl font-semibold leading-tight tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h1
+          data-testid="blog-title"
+          className="text-3xl font-semibold leading-tight tracking-tight text-zinc-900 dark:text-zinc-50"
+        >
           {blog.title}
         </h1>
-        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+        <p
+          data-testid="blog-author"
+          className="mt-2 text-sm text-zinc-500 dark:text-zinc-400"
+        >
           by{" "}
           <span className="font-medium text-zinc-700 dark:text-zinc-300">
             {blog.author}
@@ -91,6 +100,7 @@ export default async function BlogDetailPage({
                 <input type="hidden" name="id" value={blog.id} />
                 <button
                   type="submit"
+                  data-testid="add-to-reading-list-button"
                   className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 >
                   + Add to reading list

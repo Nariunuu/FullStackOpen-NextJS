@@ -24,6 +24,7 @@ export default function Notification() {
     >
       <div
         role="status"
+        data-testid="notification"
         className={`pointer-events-auto flex items-center gap-3 rounded-md border px-4 py-2 text-sm shadow-md ${colorClasses}`}
       >
         <span>{notification.message}</span>

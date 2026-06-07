@@ -35,24 +35,22 @@ export async function getBlogById(id: number): Promise<Blog | null> {
 }
 
 export async function addBlog(input: NewBlogInput): Promise<Blog> {
-  return db.transaction(async (tx) => {
-    const [created] = await tx
-      .insert(blogsTable)
-      .values({
-        title: input.title,
-        author: input.author,
-        url: input.url,
-        userId: input.userId,
-      })
-      .returning();
+  const [created] = await db
+    .insert(blogsTable)
+    .values({
+      title: input.title,
+      author: input.author,
+      url: input.url,
+      userId: input.userId,
+    })
+    .returning();
 
-    await tx
-      .insert(readingList)
-      .values({ userId: input.userId, blogId: created.id })
-      .onConflictDoNothing();
+  await db
+    .insert(readingList)
+    .values({ userId: input.userId, blogId: created.id })
+    .onConflictDoNothing();
 
-    return created;
-  });
+  return created;
 }
 
 export async function incrementLikes(id: number): Promise<Blog | null> {

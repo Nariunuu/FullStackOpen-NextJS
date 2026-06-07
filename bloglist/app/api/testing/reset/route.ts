@@ -10,11 +10,9 @@ export async function DELETE() {
     );
   }
 
-  await db.transaction(async (tx) => {
-    await tx.delete(readingList);
-    await tx.delete(blogs);
-    await tx.delete(users);
-  });
+  await db.delete(readingList);
+  await db.delete(blogs);
+  await db.delete(users);
 
   return NextResponse.json({ success: true });
 }

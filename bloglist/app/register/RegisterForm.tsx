@@ -11,10 +11,20 @@ const initialState: RegisterState = {
   errors: {},
 };
 
-function FieldError({ message }: { message?: string }) {
+function FieldError({
+  message,
+  testId,
+}: {
+  message?: string;
+  testId: string;
+}) {
   if (!message) return null;
   return (
-    <span role="alert" className="text-xs text-red-600 dark:text-red-400">
+    <span
+      role="alert"
+      data-testid={testId}
+      className="text-xs text-red-600 dark:text-red-400"
+    >
       {message}
     </span>
   );
@@ -51,7 +61,7 @@ export default function RegisterForm() {
           aria-invalid={Boolean(state.errors.name)}
           className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
         />
-        <FieldError message={state.errors.name} />
+        <FieldError message={state.errors.name} testId="name-error" />
       </label>
 
       <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
@@ -64,7 +74,7 @@ export default function RegisterForm() {
           aria-invalid={Boolean(state.errors.username)}
           className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
         />
-        <FieldError message={state.errors.username} />
+        <FieldError message={state.errors.username} testId="username-error" />
       </label>
 
       <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
@@ -76,11 +86,11 @@ export default function RegisterForm() {
           aria-invalid={Boolean(state.errors.password)}
           className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
         />
-        <FieldError message={state.errors.password} />
+        <FieldError message={state.errors.password} testId="password-error" />
       </label>
 
       <label className="flex flex-col gap-1 text-sm text-zinc-700 dark:text-zinc-300">
-        Confirm password
+        Confirm Password
         <input
           type="password"
           name="passwordConfirm"
@@ -88,12 +98,16 @@ export default function RegisterForm() {
           aria-invalid={Boolean(state.errors.passwordConfirm)}
           className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
         />
-        <FieldError message={state.errors.passwordConfirm} />
+        <FieldError
+          message={state.errors.passwordConfirm}
+          testId="passwordConfirm-error"
+        />
       </label>
 
       <button
         type="submit"
         disabled={pending}
+        data-testid="register-button"
         className="self-start rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
       >
         {pending ? "Creating…" : "Create account"}

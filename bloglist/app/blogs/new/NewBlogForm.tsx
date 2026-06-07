@@ -98,9 +98,10 @@ export default function NewBlogForm() {
       <button
         type="submit"
         disabled={pending}
+        data-testid="create-blog-button"
         className="self-start rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
       >
-        {pending ? "Creating…" : "Create blog"}
+        {pending ? "Creating…" : "Create"}
       </button>
     </form>
   );
